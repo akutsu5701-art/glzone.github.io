@@ -1,117 +1,88 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>追剧日历</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>追剧站</title>
 
 <style>
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b1220;
-  color:white;
+  font-family:Arial, sans-serif;
+  background:#ffffff;
+  color:#111;
 }
 
 header{
   text-align:center;
-  padding:20px;
+  padding:40px 20px;
+  border-bottom:1px solid #eee;
 }
 
-.calendar{
-  max-width:1000px;
+.container{
+  max-width:800px;
   margin:auto;
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:6px;
-  padding:20px;
+  padding:30px 20px;
 }
 
-.day{
-  background:#1e293b;
-  min-height:70px;
+.item{
+  padding:15px 0;
+  border-bottom:1px solid #eee;
+}
+
+.item h3{
+  margin:0 0 5px 0;
+  font-size:18px;
+}
+
+.item p{
+  margin:0;
+  font-size:14px;
+  color:#666;
+}
+
+footer{
+  text-align:center;
+  padding:30px;
   font-size:12px;
-  padding:4px;
-  border-radius:6px;
-  overflow:hidden;
+  color:#999;
 }
-
-.has-update{
-  background:#2563eb;
-}
-
-.today{
-  border:2px solid #22c55e;
-}
-
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>📅 追剧日历</h2>
+  <h1>📺 追剧更新</h1>
+  <p>简洁 · 清晰 · 易维护</p>
 </header>
 
-<div class="calendar" id="calendar"></div>
+<div class="container" id="list"></div>
+
+<footer>
+© 2026 glzone.qzz.io
+</footer>
 
 <script>
-
-let data = [];
-
 fetch('data.json')
 .then(res => res.json())
-.then(json => {
-  data = json;
-  renderCalendar();
-});
+.then(data => {
 
-function renderCalendar(){
+  const list = document.getElementById('list');
 
-  const calendar = document.getElementById('calendar');
-  calendar.innerHTML = "";
-
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-
-  for(let i=0;i<firstDay;i++){
-    calendar.innerHTML += "<div></div>";
-  }
-
-  for(let day=1; day<=daysInMonth; day++){
-
-    let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-
-    let dayShows = data.filter(show => {
-      let premiere = new Date(show.premiereDate);
-      let current = new Date(dateStr);
-      let diffDays = (current - premiere) / (1000*60*60*24);
-
-      return diffDays >= 0 && diffDays % show.updateInterval === 0;
-    });
-
-    let className = "day";
-
-    if(dayShows.length > 0) className += " has-update";
-
-    let todayStr = today.toISOString().split('T')[0];
-    if(dateStr === todayStr) className += " today";
-
-    let content = dayShows.map(s => s.name).join("<br>");
-
-    calendar.innerHTML += `
-      <div class="${className}">
-        ${day}<br>
-        ${content}
+  data.forEach(show => {
+    list.innerHTML += `
+      <div class="item">
+        <h3><a href="${show.link}" style="text-decoration:none;color:#111;">
+          ${show.name}
+        </a></h3>
+        <p>开播：${show.premiereDate}</p>
+        <p>更新：每 ${show.updateInterval} 天</p>
       </div>
     `;
-  }
-}
+  });
 
+});
 </script>
 
 </body>
