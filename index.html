@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>追剧日历</title>
+<title>追剧自动排期</title>
 
 <style>
 body{
@@ -15,50 +15,20 @@ body{
 
 header{
   text-align:center;
-  padding:30px 20px;
+  padding:30px;
 }
 
-button{
-  background:#1e293b;
-  color:white;
-  border:none;
-  padding:8px 14px;
-  margin:5px;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.calendar{
+.container{
   max-width:900px;
   margin:auto;
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:5px;
   padding:20px;
 }
 
-.day{
+.card{
   background:#1e293b;
-  min-height:80px;
-  padding:5px;
-  border-radius:8px;
-  font-size:14px;
-}
-
-.highlight{
-  background:#2563eb;
-}
-
-.today{
-  border:2px solid #22c55e;
-}
-
-#events{
-  max-width:900px;
-  margin:20px auto;
-  padding:20px;
-  background:#1e293b;
+  padding:15px;
   border-radius:10px;
+  margin-bottom:15px;
 }
 </style>
 </head>
@@ -66,104 +36,51 @@ button{
 <body>
 
 <header>
-  <h1>📅 追剧日历</h1>
-  <div>
-    <button onclick="changeMonth(-1)">⬅ 上月</button>
-    <span id="monthTitle"></span>
-    <button onclick="changeMonth(1)">下月 ➡</button>
-  </div>
+  <h1>📅 自动追剧排期</h1>
 </header>
 
-<div class="calendar" id="calendar"></div>
-
-<div id="events">
-  点击日期查看更新
-</div>
+<div class="container" id="list"></div>
 
 <script>
 
-let currentDate = new Date();
-
-let data = [];
-
 fetch('data.json')
-  .then(res => res.json())
-  .then(json => {
-    data = json;
-    renderCalendar();
-  });
+.then(res => res.json())
+.then(data => {
 
-function changeMonth(offset){
-  currentDate.setMonth(currentDate.getMonth()+offset);
-  renderCalendar();
-}
+  const container = document.getElementById('list');
+  const today = new Date();
 
-function renderCalendar(){
+  data.forEach(show => {
 
-  const calendar = document.getElementById('calendar');
-  const monthTitle = document.getElementById('monthTitle');
-  const events = document.getElementById('events');
+    let premiere = new Date(show.premiereDate);
+    let episodes = [];
 
-  calendar.innerHTML = "";
+    for(let i=0; i<show.totalEpisodes; i+=show.episodesPerUpdate){
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
+      let episodeNumber = i + 1;
 
-  monthTitle.innerText = year + " 年 " + (month+1) + " 月";
+      let updateDate = new Date(premiere);
+      let weeksPassed = Math.floor(i / show.episodesPerUpdate) * show.updateInterval;
+      updateDate.setDate(updateDate.getDate() + weeksPassed);
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
+      episodes.push({
+        number: episodeNumber,
+        date: updateDate.toISOString().split('T')[0]
+      });
+    }
 
-  // 空白格
-  for(let i=0;i<firstDay;i++){
-    calendar.innerHTML += "<div></div>";
-  }
-
-  for(let day=1; day<=daysInMonth; day++){
-
-    let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-
-    let dayEvents = data.filter(item => item.updated === dateStr);
-
-    let highlightClass = dayEvents.length > 0 ? "highlight" : "";
-
-    let today = new Date();
-    let todayStr = today.toISOString().split('T')[0];
-    let todayClass = (dateStr === todayStr) ? "today" : "";
-
-    calendar.innerHTML += `
-      <div class="day ${highlightClass} ${todayClass}"
-           onclick="showEvents('${dateStr}')">
-        ${day}
+    container.innerHTML += `
+      <div class="card">
+        <h2>${show.name}</h2>
+        <p>类型：${show.cpName}</p>
+        <p>开播：${show.premiereDate}</p>
+        <p>总集数：${show.totalEpisodes}</p>
+        <p>自动排期已生成</p>
       </div>
     `;
-  }
-}
-
-function showEvents(dateStr){
-
-  let dayEvents = data.filter(item => item.updated === dateStr);
-
-  const events = document.getElementById('events');
-
-  if(dayEvents.length === 0){
-    events.innerHTML = "当天没有更新";
-    return;
-  }
-
-  events.innerHTML = "<h3>📌 当天更新：</h3>";
-
-  dayEvents.forEach(item=>{
-    events.innerHTML += `
-      <p>
-        <a href="${item.link}" style="color:#60a5fa;">
-          ${item.title}
-        </a>
-        — ${item.desc}
-      </p>
-    `;
   });
-}
+
+});
 
 </script>
 
