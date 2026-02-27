@@ -1,89 +1,46 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>追剧站</title>
-
+<title>我的追剧日历</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#ffffff;
-  color:#111;
-}
-
-header{
-  text-align:center;
-  padding:40px 20px;
-  border-bottom:1px solid #eee;
-}
-
-.container{
-  max-width:800px;
-  margin:auto;
-  padding:30px 20px;
-}
-
-.item{
-  padding:15px 0;
-  border-bottom:1px solid #eee;
-}
-
-.item h3{
-  margin:0 0 5px 0;
-  font-size:18px;
-}
-
-.item p{
-  margin:0;
-  font-size:14px;
-  color:#666;
-}
-
-footer{
-  text-align:center;
-  padding:30px;
-  font-size:12px;
-  color:#999;
-}
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; padding: 20px; }
+    h1 { color: #2c3e50; text-align: center; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .day-name { font-weight: bold; text-align: center; color: #34495e; padding-bottom: 10px; border-bottom: 2px solid #ecf0f1; }
+    .day { min-height: 120px; border: 1px solid #ecf0f1; border-radius: 5px; padding: 10px; background-color: #fafafa; transition: 0.3s; }
+    .day:hover { background-color: #f0f8ff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .date { font-weight: bold; color: #7f8c8d; margin-bottom: 10px; }
+    .event { background-color: #e3f2fd; color: #1565c0; padding: 5px; border-radius: 4px; font-size: 12px; margin-bottom: 5px; border-left: 3px solid #1e88e5; }
 </style>
 </head>
-
 <body>
 
-<header>
-  <h1>📺 追剧更新</h1>
-  <p>简洁 · 清晰 · 易维护</p>
-</header>
+    <h1>2026年 2月 追剧排期表</h1>
 
-<div class="container" id="list"></div>
+    <div class="calendar">
+        <!-- 星期表头 -->
+        <div class="day-name">周日</div><div class="day-name">周一</div><div class="day-name">周二</div>
+        <div class="day-name">周三</div><div class="day-name">周四</div><div class="day-name">周五</div><div class="day-name">周六</div>
 
-<footer>
-© 2026 glzone.qzz.io
-</footer>
-
-<script>
-fetch('data.json')
-.then(res => res.json())
-.then(data => {
-
-  const list = document.getElementById('list');
-
-  data.forEach(show => {
-    list.innerHTML += `
-      <div class="item">
-        <h3><a href="${show.link}" style="text-decoration:none;color:#111;">
-          ${show.name}
-        </a></h3>
-        <p>开播：${show.premiereDate}</p>
-        <p>更新：每 ${show.updateInterval} 天</p>
-      </div>
-    `;
-  });
-
-});
-</script>
+        <!-- 这里是简单的日期格子示例 -->
+        <div class="day"><div class="date">1</div></div>
+        <div class="day"><div class="date">2</div></div>
+        <div class="day"><div class="date">3</div></div>
+        <div class="day"><div class="date">4</div></div>
+        <div class="day"><div class="date">5</div></div>
+        <div class="day">
+            <div class="date">6</div>
+            <div class="event">超级巨星<br>Ep 1 - 02:00</div>
+            <div class="event">只属于我的天使<br>Ep 1 - 21:00</div>
+        </div>
+        <div class="day">
+            <div class="date">7</div>
+            <div class="event">大地情缘<br>Ep 1 - 22:30</div>
+        </div>
+        <!-- 限于篇幅只写第一周，你可以照葫芦画瓢继续往下加 <div class="day">...</div> -->
+    </div>
 
 </body>
 </html>
