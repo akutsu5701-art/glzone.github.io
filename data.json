@@ -1,8 +1,22 @@
 [
   {
-    "title": "剧名A",
-    "desc": "每周更新",
-    "link": "dramas/drama1/",
-    "updated": "2026-02-27"
+    "id": "1",
+    "name": "唯一的阳光",
+    "cpName": "小说改编",
+    "premiereDate": "2026-02-25",
+    "updateTime": "00:30",
+    "totalEpisodes": 12,
+    "updateInterval": 7,
+    "episodesPerUpdate": 1
+  },
+  {
+    "id": "2",
+    "name": "心动撞上冰山",
+    "cpName": "小说改编",
+    "premiereDate": "2026-02-12",
+    "updateTime": "21:30",
+    "totalEpisodes": 10,
+    "updateInterval": 7,
+    "episodesPerUpdate": 1
   }
 ]
