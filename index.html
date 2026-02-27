@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>追剧自动排期</title>
+<title>追剧日历</title>
 
 <style>
 body{
@@ -15,72 +15,102 @@ body{
 
 header{
   text-align:center;
-  padding:30px;
-}
-
-.container{
-  max-width:900px;
-  margin:auto;
   padding:20px;
 }
 
-.card{
-  background:#1e293b;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
+.calendar{
+  max-width:1000px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  padding:20px;
 }
+
+.day{
+  background:#1e293b;
+  min-height:70px;
+  font-size:12px;
+  padding:4px;
+  border-radius:6px;
+  overflow:hidden;
+}
+
+.has-update{
+  background:#2563eb;
+}
+
+.today{
+  border:2px solid #22c55e;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-  <h1>📅 自动追剧排期</h1>
+  <h2>📅 追剧日历</h2>
 </header>
 
-<div class="container" id="list"></div>
+<div class="calendar" id="calendar"></div>
 
 <script>
 
+let data = [];
+
 fetch('data.json')
 .then(res => res.json())
-.then(data => {
+.then(json => {
+  data = json;
+  renderCalendar();
+});
 
-  const container = document.getElementById('list');
+function renderCalendar(){
+
+  const calendar = document.getElementById('calendar');
+  calendar.innerHTML = "";
+
   const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
 
-  data.forEach(show => {
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
 
-    let premiere = new Date(show.premiereDate);
-    let episodes = [];
+  for(let i=0;i<firstDay;i++){
+    calendar.innerHTML += "<div></div>";
+  }
 
-    for(let i=0; i<show.totalEpisodes; i+=show.episodesPerUpdate){
+  for(let day=1; day<=daysInMonth; day++){
 
-      let episodeNumber = i + 1;
+    let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
-      let updateDate = new Date(premiere);
-      let weeksPassed = Math.floor(i / show.episodesPerUpdate) * show.updateInterval;
-      updateDate.setDate(updateDate.getDate() + weeksPassed);
+    let dayShows = data.filter(show => {
+      let premiere = new Date(show.premiereDate);
+      let current = new Date(dateStr);
+      let diffDays = (current - premiere) / (1000*60*60*24);
 
-      episodes.push({
-        number: episodeNumber,
-        date: updateDate.toISOString().split('T')[0]
-      });
-    }
+      return diffDays >= 0 && diffDays % show.updateInterval === 0;
+    });
 
-    container.innerHTML += `
-      <div class="card">
-        <h2>${show.name}</h2>
-        <p>类型：${show.cpName}</p>
-        <p>开播：${show.premiereDate}</p>
-        <p>总集数：${show.totalEpisodes}</p>
-        <p>自动排期已生成</p>
+    let className = "day";
+
+    if(dayShows.length > 0) className += " has-update";
+
+    let todayStr = today.toISOString().split('T')[0];
+    if(dateStr === todayStr) className += " today";
+
+    let content = dayShows.map(s => s.name).join("<br>");
+
+    calendar.innerHTML += `
+      <div class="${className}">
+        ${day}<br>
+        ${content}
       </div>
     `;
-  });
-
-});
+  }
+}
 
 </script>
 
